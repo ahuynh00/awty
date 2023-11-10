@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.telephony.PhoneNumberFormattingTextWatcher
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -48,9 +49,11 @@ class MainActivity : AppCompatActivity() {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 toggleEnable()
+                validatePhoneNumber()
             }
             override fun afterTextChanged(p0: Editable?) {}
         })
+        etphoneNumber.addTextChangedListener(PhoneNumberFormattingTextWatcher());
         etinterval.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -89,6 +92,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun validatePhoneNumber() {
+        val phoneNumber = etphoneNumber.text.toString()
+        Log.d("validatePhone", phoneNumber)
+        if (Regex("^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}\$").matches(phoneNumber)) {
+            etphoneNumber.error = "Invalid phone number"
+        } else {
+            etinterval.error = null
+        }
+    }
+
     private fun toggleStartStop(running: Boolean): Boolean {
         if (running) {
             startStopBtn.text = "Start"
@@ -118,15 +131,17 @@ class MainActivity : AppCompatActivity() {
 
         // Get the Alarm Manager
         val alarmManager : AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intervalMS : Long = 1000 * etinterval.text.toString().toLong()
+        val intervalMS : Long = 60 * 1000 * etinterval.text.toString().toLong()
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
             System.currentTimeMillis(),
             intervalMS,
             pendingIntent)
+
     }
 
-    fun endMsgs() {
+    private fun endMsgs() {
+
         unregisterReceiver(receiver)
         receiver = null
     }
