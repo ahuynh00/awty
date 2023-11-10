@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
     fun toggleEnable() {
         startStopBtn.isEnabled = (etmessage.text.toString().length !== 0
                 && etphoneNumber.text.toString().length !== 0
+                && etphoneNumber.error == null
                 && etinterval.text.toString().length !== 0
                 && etinterval.error == null)
     }
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity() {
     fun validatePhoneNumber() {
         val phoneNumber = etphoneNumber.text.toString()
         Log.d("validatePhone", phoneNumber)
-        if (Regex("^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}\$").matches(phoneNumber)) {
+        if (!Regex("^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}\$").matches(phoneNumber)) {
             etphoneNumber.error = "Invalid phone number"
         } else {
             etinterval.error = null
@@ -141,7 +142,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun endMsgs() {
-
         unregisterReceiver(receiver)
         receiver = null
     }
