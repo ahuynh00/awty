@@ -69,11 +69,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 endMsgs()
             }
-
-
         }
-
-
     }
 
     fun toggleEnable() {
@@ -114,6 +110,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startMsgs() {
+        etmessage.isEnabled = false
+        etinterval.isEnabled = false
+        etphoneNumber.isEnabled = false
+
         val activityThis = this
         if (receiver == null) {
             receiver = object : BroadcastReceiver() {
@@ -144,6 +144,11 @@ class MainActivity : AppCompatActivity() {
     private fun endMsgs() {
         unregisterReceiver(receiver)
         receiver = null
+
+        // TODO: make this a separate function (and in start MSG)
+        etmessage.isEnabled = true
+        etinterval.isEnabled = true
+        etphoneNumber.isEnabled = true
     }
 
 
