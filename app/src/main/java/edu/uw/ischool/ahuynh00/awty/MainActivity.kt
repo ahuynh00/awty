@@ -6,16 +6,17 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
+import android.telephony.SmsManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import java.text.NumberFormat
 
 const val ALARM_ACTION = "AWTY"
 class MainActivity : AppCompatActivity() {
@@ -25,6 +26,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var startStopBtn: Button
     var receiver : BroadcastReceiver? = null
 
+
+//  As a user, when I "Start" the service, it should begin to "send messages" every N minutes,
+//  as given by the user in the EditText UI. These should be sent as SMS messages.
+
+//  2pts: send an audio message (doesn't need to be recorded on the device; it can be a static asset)
+//  2pts: send a video message (ditto--can be a static asset)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -118,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         if (receiver == null) {
             receiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
+                    sendMsgs("${etphoneNumber.text}", "${etmessage.text}")
                     Toast.makeText(activityThis, "${etphoneNumber.text}: ${etmessage.text}", Toast.LENGTH_LONG).show()
                     Log.d("toast", "interval rn??")
                 }
@@ -149,6 +157,23 @@ class MainActivity : AppCompatActivity() {
         etmessage.isEnabled = true
         etinterval.isEnabled = true
         etphoneNumber.isEnabled = true
+    }
+
+    private fun sendMsgs(phoneNumber: String, message : String) {
+        try {
+            val smsManager:SmsManager
+            if (Build.VERSION.SDK_INT>=23) {
+                smsManager = this.getSystemService(SmsManager::class.java)
+            } else{
+                smsManager = SmsManager.getDefault()
+            }
+            val number = phoneNumber.replace("[() -]", "")
+
+            smsManager.sendTextMessage(number, null, message, null, null)
+            Log.d("send Msgs", "after send")
+        } catch (error: Exception) {
+            Log.e("send Msgs", "$error")
+        }
     }
 
 
